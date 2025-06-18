@@ -14,7 +14,21 @@ try {
 }
 
 try {
-    $stmt = $pdo->query("SELECT * FROM shift ORDER BY time_start");
+    $stmt = $pdo->query("
+        SELECT 
+            s.*,
+            COUNT(a.id_assignment) AS employees
+        FROM shift s
+        LEFT JOIN assignment a ON s.id_shift = a.shift_id
+        GROUP BY s.id_shift
+        ORDER BY 
+            CASE s.status
+                WHEN 'active' THEN 1
+                WHEN 'pending' THEN 2
+                WHEN 'closed' THEN 3
+            END,
+            s.time_start
+    ");
     $shifts = $stmt->fetchAll();
 } catch (PDOException $e) {
     die("Ошибка получения данных: " . $e->getMessage());
@@ -180,7 +194,7 @@ try {
                                 <h3 class="font-semibold text-orange-900">Смена #<?= $shift['id_shift'] ?></h3>
                                 <p class="text-sm text-orange-700">
                                     <?= date('d M H:i', strtotime($shift['time_start'])) ?> — 
-                                    <?= date('H:i', strtotime($shift['time_end'])) ?>
+                                    <?= date('d M H:i', strtotime($shift['time_end'])) ?>
                                 </p>
                             </div>
                             <?php if ($shift['status'] === 'active'): ?>
@@ -198,7 +212,7 @@ try {
                             <?php endif; ?>
                         </div>
                         <div class="text-sm text-orange-600">
-                            <?= count($shift['employees'] ?? []) ?> сотрудников
+                            <?= $shift['employee_count'] ?> сотрудников
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -302,11 +316,9 @@ try {
                 <div>
                     <label class="block text-sm font-medium text-orange-800 mb-2">Статус *</label>
                     <select required 
+                            id="shiftStatus"
                             name="status"
                             class="w-full px-4 py-3 border-2 border-orange-100 rounded-lg focus:border-orange-300 focus:ring-2 focus:ring-orange-200">
-                        <option value="pending">В ожидании</option>
-                        <option value="active">Активна</option>
-                        <option value="closed">Завершена</option>
                     </select>
                 </div>
                 <div>
@@ -343,29 +355,113 @@ try {
 
         function closeShiftModal() {
             document.getElementById('addShiftModal').classList.add('hidden');
+            clearShiftForm();
+        }
+
+        function setupStatusSelect(currentStatus, isNewShift) {
+            const statusSelect = document.getElementById('shiftStatus');
+            statusSelect.innerHTML = '';
+            if (isNewShift) {
+                const option = document.createElement('option');
+                option.value = 'pending';
+                option.textContent = 'В ожидании';
+                option.selected = true;
+                statusSelect.appendChild(option);
+            } else {
+                if (currentStatus === 'pending') {
+                    const pendingOption = document.createElement('option');
+                    pendingOption.value = 'pending';
+                    pendingOption.textContent = 'В ожидании';
+                    const activeOption = document.createElement('option');
+                    activeOption.value = 'active';
+                    activeOption.textContent = 'Активна';
+                    const closedOption = document.createElement('option');
+                    closedOption.value = 'closed';
+                    closedOption.textContent = 'Завершена';
+                    statusSelect.appendChild(pendingOption);
+                    statusSelect.appendChild(activeOption);
+                    statusSelect.appendChild(closedOption);
+                } 
+                else if (currentStatus === 'active') {
+                    const activeOption = document.createElement('option');
+                    activeOption.value = 'active';
+                    activeOption.textContent = 'Активна';
+                    activeOption.disabled = true;
+                    activeOption.selected = true;
+                    const closedOption = document.createElement('option');
+                    closedOption.value = 'closed';
+                    closedOption.textContent = 'Завершена';
+                    
+                    statusSelect.appendChild(activeOption);
+                    statusSelect.appendChild(closedOption);
+                } 
+                else if (currentStatus === 'closed') {
+                    const closedOption = document.createElement('option');
+                    closedOption.value = 'closed';
+                    closedOption.textContent = 'Завершена';
+                    closedOption.selected = true;
+                    closedOption.disabled = true;
+                    statusSelect.appendChild(closedOption);
+                    statusSelect.disabled = true;
+                }
+                statusSelect.value = currentStatus;
+            }
+        }
+
+        function clearShiftForm() {
+            document.querySelector('[name="start"]').value = '';
+            document.querySelector('[name="end"]').value = '';
+            document.querySelector('[name="start"]').disabled = false;
+            document.querySelector('[name="end"]').disabled = false;
+            document.getElementById('shiftEmployees').disabled = false;
+            document.querySelector('[name="start"]').classList.remove('opacity-70', 'cursor-not-allowed');
+            document.querySelector('[name="end"]').classList.remove('opacity-70', 'cursor-not-allowed');
+            document.getElementById('shiftEmployees').classList.remove('opacity-70', 'cursor-not-allowed');
+            const statusSelect = document.getElementById('shiftStatus');
+            statusSelect.innerHTML = '';
+            statusSelect.disabled = false;
+            const select = document.getElementById('shiftEmployees');
+            Array.from(select.options).forEach(option => option.selected = false);
+            document.getElementById('selectedEmployees').innerHTML = '';
+            document.querySelector('.parent-orders').innerHTML = '';
         }
 
         document.getElementById('addUserModal').addEventListener('click', function(e) {
             if(e.target === this) closeModal();
         });
 
-        function updateSelectedEmployees() {
+        function updateSelectedEmployees(isEditable = true) {
             const select = document.getElementById('shiftEmployees');
             const container = document.getElementById('selectedEmployees');
             container.innerHTML = '';
             Array.from(select.selectedOptions).forEach(option => {
                 const div = document.createElement('div');
                 div.className = 'flex items-center justify-between bg-orange-50 p-2 rounded-lg';
-                div.innerHTML = `
-                    <span class="text-orange-700">${option.textContent}</span>
-                    <button onclick="this.parentElement.remove()" 
-                            class="text-orange-500 hover:text-orange-700">
+                div.dataset.employeeId = option.value;
+                const removeButton = isEditable ? `
+                    <button class="text-orange-500 hover:text-orange-700 remove-employee-btn">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
+                ` : '';
+                div.innerHTML = `
+                    <span class="text-orange-700">${option.textContent}</span>
+                    ${removeButton}
                 `;
                 container.appendChild(div);
+                if (isEditable) {
+                    document.querySelectorAll('.remove-employee-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const employeeId = this.closest('div').dataset.employeeId;
+                            this.closest('div').remove();
+                            const option = document.querySelector(`#shiftEmployees option[value="${employeeId}"]`);
+                            if (option) {
+                                option.selected = false;
+                            }
+                        });
+                    });
+                }
             });
         }
         let currentShiftId = null;
@@ -373,6 +469,7 @@ try {
             currentShiftId = shiftId;
             const modal = document.getElementById('addShiftModal');
             modal.classList.remove('hidden');
+            clearShiftForm();
             try {
                 const response = await fetch('get_users.php');
                 const users = await response.json();
@@ -387,7 +484,16 @@ try {
                     const shiftData = await shiftResponse.json();
                     document.querySelector('[name="start"]').value = shiftData.start;
                     document.querySelector('[name="end"]').value = shiftData.end;
-                    document.querySelector('[name="status"]').value = shiftData.status;
+                    setupStatusSelect(shiftData.status, false);
+                    const isPending = shiftData.status === 'pending';
+                    document.querySelector('[name="start"]').disabled = !isPending;
+                    document.querySelector('[name="end"]').disabled = !isPending;
+                    select.disabled = !isPending;
+                    if (!isPending) {
+                        document.querySelector('[name="start"]').classList.add('opacity-70', 'cursor-not-allowed');
+                        document.querySelector('[name="end"]').classList.add('opacity-70', 'cursor-not-allowed');
+                        select.classList.add('opacity-70', 'cursor-not-allowed');
+                    }
                     const parentOrders = document.querySelector('.parent-orders');
                     parentOrders.innerHTML = '';
                     if (shiftData.orders) {                        
@@ -422,8 +528,11 @@ try {
                         );
                         if (option) option.selected = true;
                     });
+                    updateSelectedEmployees(isPending);
+                } else {
+                    setupStatusSelect('pending', true);
+                    updateSelectedEmployees(true);
                 }
-                updateSelectedEmployees();
             } catch (error) {
                 console.error('Ошибка загрузки данных:', error);
             }
@@ -431,23 +540,22 @@ try {
         document.getElementById('shiftEmployees').addEventListener('change', updateSelectedEmployees);
         document.getElementById('shiftForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formDataShift = {
-                start: document.querySelector('#shiftForm [name="start"]').value,
-                end: document.querySelector('#shiftForm [name="end"]').value,
-                employees: Array.from(document.getElementById('shiftEmployees').selectedOptions)
-                            .map(option => option.value),
-                status: document.querySelector('#shiftForm [name="status"]').value
+            const formData = new FormData(e.target);
+            const shiftData = {
+                start: formData.get('start'),
+                end: formData.get('end'),
+                status: formData.get('status'),
+                employees: formData.getAll('employees[]')
             };
             try {
-                const url = currentShiftId ? 
-                    `save_shift.php?id=${currentShiftId}` : 
-                    'save_shift.php';
+                const url = currentShiftId 
+                    ? `save_shift.php?id=${currentShiftId}`
+                    : 'save_shift.php';      
                 const method = currentShiftId ? 'PUT' : 'POST';
-
                 const response = await fetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formDataShift)
+                    body: JSON.stringify(shiftData)
                 });
                 if (!response.ok) throw new Error('Ошибка сервера');
                 alert(currentShiftId ? 'Смена обновлена!' : 'Смена создана!');
