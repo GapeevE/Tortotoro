@@ -38,6 +38,19 @@ if ($user['role_id'] !== 1) {
             header("Location: index.php");
             exit;
         }
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM `assignment`
+            WHERE user_id = ?
+            AND shift_id = ?
+        ");
+        $stmt->execute([$user['id_user'], $shift['id_shift']]);
+        $assignment = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        if (count($assignment) === 0) {
+            $_SESSION['login_error'] = 'Вас нет в активной смене';
+            header("Location: index.php");
+            exit;
+        }
         $_SESSION['shift_id'] = $shift['id_shift'];
     } catch (PDOException $e) {
         die("Ошибка при проверке смены: " . $e->getMessage());

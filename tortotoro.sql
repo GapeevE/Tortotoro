@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Апр 24 2025 г., 08:28
+-- Время создания: Июн 19 2025 г., 14:01
 -- Версия сервера: 5.6.51-log
 -- Версия PHP: 7.2.34
 
@@ -37,14 +37,6 @@ CREATE TABLE `assignment` (
 -- Дамп данных таблицы `assignment`
 --
 
-INSERT INTO `assignment` (`id_assignment`, `shift_id`, `user_id`) VALUES
-(3, 2, 4),
-(4, 2, 3),
-(13, 1, 5),
-(14, 1, 4),
-(18, 3, 5),
-(19, 3, 4),
-(20, 3, 3);
 
 -- --------------------------------------------------------
 
@@ -66,7 +58,15 @@ INSERT INTO `dish` (`id_dish`, `name`, `price`) VALUES
 (1, 'Торт Наполеон', 300),
 (2, 'Кофе', 50),
 (3, 'Чизкейк', 150),
-(4, 'Чай', 30);
+(4, 'Чай', 30),
+(5, 'Японский кекс', 140),
+(6, 'Мусс фисташка-вишня', 190),
+(7, 'Моти', 70),
+(8, 'Десерт таёжный', 370),
+(9, 'Пирожное крем-брюле', 290),
+(10, 'Пончики с малиновым вареньем', 470),
+(11, 'Фисташковое мороженое', 240),
+(12, 'Пломбир домашний', 230);
 
 -- --------------------------------------------------------
 
@@ -84,15 +84,6 @@ CREATE TABLE `item` (
 --
 -- Дамп данных таблицы `item`
 --
-
-INSERT INTO `item` (`id_item`, `order_id`, `dish_id`, `count`) VALUES
-(1, 1, 1, 2),
-(2, 1, 2, 2),
-(3, 2, 3, 1),
-(4, 3, 1, 1),
-(5, 3, 3, 1),
-(6, 4, 3, 1),
-(7, 5, 4, 1);
 
 -- --------------------------------------------------------
 
@@ -112,13 +103,6 @@ CREATE TABLE `order` (
 -- Дамп данных таблицы `order`
 --
 
-INSERT INTO `order` (`id_order`, `created_at`, `shift_id`, `user_id`, `status`) VALUES
-(1, '2025-04-23 12:21:07', 2, 3, 'pending'),
-(2, '2025-04-23 12:23:05', 2, 3, 'pending'),
-(3, '2025-04-23 17:09:20', 3, 3, 'paid'),
-(4, '2025-04-23 17:09:37', 3, 3, 'preparing'),
-(5, '2025-04-23 17:20:34', 3, 3, 'pending');
-
 -- --------------------------------------------------------
 
 --
@@ -136,10 +120,6 @@ CREATE TABLE `shift` (
 -- Дамп данных таблицы `shift`
 --
 
-INSERT INTO `shift` (`id_shift`, `time_start`, `time_end`, `status`) VALUES
-(1, '2025-04-23 10:10:00', '2025-04-23 20:10:00', 'closed'),
-(2, '2025-04-24 05:15:00', '2025-04-24 07:15:00', 'pending'),
-(3, '2025-04-30 03:10:00', '2025-04-30 04:10:00', 'active');
 
 -- --------------------------------------------------------
 
@@ -161,10 +141,9 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id_user`, `login`, `password`, `name`, `photo_file`, `role_id`) VALUES
-(1, 'cheban', '$2y$10$B.Rm3tVWbr0OS4/nJMyjQeNvqfHCWM5xVEcZmuAQ234C.omkIUwx2', 'Чебан Олег Олегович', 'images/cheban/68076de78d295.jpg', 1),
+(1, 'cheban', '$2y$10$B.Rm3tVWbr0OS4/nJMyjQeNvqfHCWM5xVEcZmuAQ234C.omkIUwx2', 'Чебан Олег Олегович', NULL, 1),
 (3, 'shakilonil', '$2y$10$Y6MP260n3RUVAjiRRCFG/eQaLDAqSnFighfnHjSl/1zViH0GnbSiW', 'Шакирова Валерия Александровна', NULL, 2),
-(4, 'olga', '$2y$10$N/VSYXSvtL7e3IE7OMXMP.Y9rdtf13YfgIJC39pj0UEy4wGQmmSja', 'Лыскова Ольга Анатольевна', NULL, 3),
-(5, 'dvorskiy', '$2y$10$jQDvdzvTqwHrjKMUXHU/muLPYsZhP29245TnKsTZ1T.fuMi7YU/3S', 'Дворских Антон Викторович', NULL, 2);
+(4, 'olga', '$2y$10$N/VSYXSvtL7e3IE7OMXMP.Y9rdtf13YfgIJC39pj0UEy4wGQmmSja', 'Лыскова Ольга Анатольевна', NULL, 3);
 
 --
 -- Индексы сохранённых таблиц
@@ -221,37 +200,37 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT для таблицы `assignment`
 --
 ALTER TABLE `assignment`
-  MODIFY `id_assignment` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id_assignment` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT для таблицы `dish`
 --
 ALTER TABLE `dish`
-  MODIFY `id_dish` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_dish` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT для таблицы `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT для таблицы `order`
 --
 ALTER TABLE `order`
-  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_order` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT для таблицы `shift`
 --
 ALTER TABLE `shift`
-  MODIFY `id_shift` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_shift` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `user`
 --
 ALTER TABLE `user`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц

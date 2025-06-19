@@ -69,7 +69,6 @@ function getStatusClasses($status) {
             </button>
         </div>
     </nav>
-
     <div class="container mx-auto p-6">
         <div class="bg-white rounded-xl shadow-lg border-2 border-orange-100 p-6">
             <div class="flex flex-col md:flex-row gap-4 mb-6">
@@ -88,7 +87,6 @@ function getStatusClasses($status) {
                     Оформить заказ
                 </button>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <?php foreach ($orders as $order): ?>
                 <div class="order-card bg-orange-50 p-4 rounded-xl border-2 border-orange-100 hover:border-orange-200 cursor-pointer transition-all" 
@@ -105,7 +103,6 @@ function getStatusClasses($status) {
                             <?= getStatusText($order['status']) ?>
                         </span>
                     </div>
-                    
                     <div class="mb-4">
                         <h4 class="text-sm font-medium text-orange-800 mb-2">Состав заказа:</h4>
                         <ul class="text-sm space-y-2">
@@ -117,8 +114,7 @@ function getStatusClasses($status) {
                             </li>
                             <?php endforeach; ?>
                         </ul>
-                    </div>
-                    
+                    </div> 
                     <div class="flex justify-between items-center border-t border-orange-100 pt-3">
                         <span class="font-medium text-orange-800">Итого к оплате:</span>
                         <span class="font-bold text-orange-900"><?= $order['total'] ?>₽</span>
@@ -128,10 +124,8 @@ function getStatusClasses($status) {
             </div>
         </div>
     </div>
-
-    <!-- Модальное окно нового заказа -->
     <div id="addOrderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+        <div class="bg-white rounded-2xl w-full max-w-xl shadow-2xl">
             <div class="flex justify-between items-center p-6 bg-orange-100 rounded-t-2xl">
                 <h3 class="text-xl font-bold text-orange-900">Новый заказ</h3>
                 <button onclick="closeOrderModal()" class="text-orange-700 hover:text-orange-900">
@@ -175,8 +169,6 @@ function getStatusClasses($status) {
             </form>
         </div>
     </div>
-
-    <!-- Модальное окно редактирования -->
     <div id="editOrderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center p-6 bg-orange-100 rounded-t-2xl">
@@ -210,7 +202,6 @@ function getStatusClasses($status) {
             </form>
         </div>
     </div>
-
     <script>
     let currentOrderId = null;
     let orderItems = [];
@@ -226,6 +217,28 @@ function getStatusClasses($status) {
         document.getElementById('editOrderModal').classList.add('hidden');
     }
 
+    function getStatusText(status) {
+        statuses = {
+            'pending': 'Принят',
+            'preparing': 'В работе',
+            'ready': 'Готов',
+            'paid': 'Оплачен',
+            'canceled': 'Отменён'
+        };
+        return statuses[status] ?? 'Неизвестно';
+    }
+
+    function getStatusClasses(status) {
+        classes = {
+            'pending': 'bg-yellow-100 text-yellow-800',
+            'preparing': 'bg-blue-100 text-blue-800',
+            'ready': 'bg-green-100 text-green-800',
+            'paid': 'bg-gray-100 text-gray-800',
+            'canceled': 'bg-red-100 text-red-800'
+        };
+        return classes[status] ?? 'bg-gray-100 text-gray-800';
+    }
+
     document.getElementById('editOrderForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const newStatus = document.getElementById('orderStatus').value;
@@ -235,16 +248,18 @@ function getStatusClasses($status) {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({order_id: currentOrderId, status: newStatus})
             });
-            
-            if (!response.ok) throw new Error('Ошибка обновления');
-            
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || 'Неизвестная ошибка сервера');
+            }
             const statusElement = document.querySelector(`[data-order-id="${currentOrderId}"] .order-status`);
             statusElement.textContent = getStatusText(newStatus);
             statusElement.className = `order-status px-3 py-1 rounded-full text-sm font-medium ${getStatusClasses(newStatus)}`;
             closeEditOrderModal();
             alert('Статус успешно обновлён!');
         } catch (error) {
-            alert('Ошибка: ' + error.message);
+            alert(`Ошибка: ${error.message}`);
+            console.error('Полная ошибка:', error);
         }
     });
 

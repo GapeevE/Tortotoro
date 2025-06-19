@@ -212,7 +212,7 @@ try {
                             <?php endif; ?>
                         </div>
                         <div class="text-sm text-orange-600">
-                            <?= $shift['employee_count'] ?> сотрудников
+                            <?= $shift['employees'] ?> сотрудников
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -547,6 +547,7 @@ try {
                 status: formData.get('status'),
                 employees: formData.getAll('employees[]')
             };
+            console.log(formData);
             try {
                 const url = currentShiftId 
                     ? `save_shift.php?id=${currentShiftId}`
@@ -557,12 +558,16 @@ try {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(shiftData)
                 });
-                if (!response.ok) throw new Error('Ошибка сервера');
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || 'Неизвестная ошибка сервера');
+                }
                 alert(currentShiftId ? 'Смена обновлена!' : 'Смена создана!');
                 closeShiftModal();
                 window.location.reload();
             } catch (error) {
-                alert('Ошибка: ' + error.message);
+                alert(`Ошибка: ${error.message}`);
+                console.error('Полная ошибка:', error);
             }
         });
         document.getElementById('userForm').addEventListener('submit', async (e) => {

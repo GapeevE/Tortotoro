@@ -106,18 +106,11 @@ function getStatusClasses($status) {
                             <?php endforeach; ?>
                         </ul>
                     </div>
-                    
-                    <div class="flex justify-between items-center border-t border-orange-100 pt-3">
-                        <span class="font-medium text-orange-800">Время приготовления:</span>
-                        <span class="font-bold text-orange-900">~<?= rand(15, 45) ?> мин</span>
-                    </div>
                 </div>
                 <?php endforeach; ?>
             </div>
         </div>
     </div>
-
-    <!-- Модальное окно редактирования -->
     <div id="editOrderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center p-6 bg-orange-100 rounded-t-2xl">
@@ -150,7 +143,6 @@ function getStatusClasses($status) {
             </form>
         </div>
     </div>
-
     <script>
     let currentOrderId = null;
 
@@ -176,16 +168,18 @@ function getStatusClasses($status) {
                     status: newStatus
                 })
             });
-            
-            if (!response.ok) throw new Error('Ошибка обновления статуса');
-            
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || 'Неизвестная ошибка сервера');
+            }
             const statusElement = document.querySelector(`[data-order-id="${currentOrderId}"] .order-status`);
             statusElement.textContent = getStatusText(newStatus);
             statusElement.className = `order-status px-3 py-1 rounded-full text-sm font-medium ${getStatusClasses(newStatus)}`;
             closeEditOrderModal();
             alert('Статус успешно обновлён!');
         } catch (error) {
-            alert('Ошибка: ' + error.message);
+            alert(`Ошибка: ${error.message}`);
+            console.error('Полная ошибка:', error);
         }
     });
 
