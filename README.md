@@ -32,17 +32,17 @@ Tortotoro is a full-stack web application designed for managing a pastry shop. I
 
 The following technologies were used to build this project:
 
-- <img src="./assets/icons/HTML5.png" width="24" height="24"> HTML5
+- <img src="./assets/icons/HTML5.png" height="24"> HTML5
 
-- <img src="./assets/icons/CSS3.png" width="24" height="24"> CSS3
+- <img src="./assets/icons/CSS3.png" height="24"> CSS3
 
-- <img src="./assets/icons/JS.png" width="24" height="24"> JavaScript
+- <img src="./assets/icons/JS.png" height="24"> JavaScript
 
-- <img src="./assets/icons/Bootstrap.png" width="24" height="24"> Bootstrap
+- <img src="./assets/icons/Bootstrap.png" height="24"> Bootstrap
 
-- <img src="./assets/icons/MySQL.png" width="24" height="24"> MySQL
+- <img src="./assets/icons/MySQL.png" height="24"> MySQL
 
-- <img src="./assets/icons/PHP.png" width="24" height="24"> PHP
+- <img src="./assets/icons/PHP.png" height="24"> PHP
 
 ## Installation
 
