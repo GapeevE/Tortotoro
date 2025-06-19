@@ -1,32 +1,56 @@
 # Tortotoro - Pastry Shop Management System
 
-## Project Overview
+## Overview
 
-Tortotoro is a full-stack web application designed for managing a pastry shop. It includes four main pages:
+Tortotoro is a full-stack web application for managing pastry shop operations. The system includes four specialized interfaces for different roles: login, administrator, waiter, and chef. The solution streamlines employee management, shift scheduling, and order processing in a bakery environment.
 
-### 1. Login Page (index.php)
+## Key Features
 
-- Description: The entry point of the application. Users can log in with their credentials.
+- **Responsive Design:** Fully adaptive interface for all device sizes
+- **Dynamic Content Handling:** Real-time AJAX fetching and rendering with search functionality
+- **Secure Database Connection:** PDO-based database interactions with prepared statements
+- **Error Monitoring:** Cookie-based error logging with visual badge notifications
+- **Role-Based Access Control:** Granular permissions for different staff roles
+- **Real-Time Updates:** Instant status changes without page reloads
 
-- Image: ![Login Page](assets/login.png)
+## Functional Modules
+
+### 1. Login Page
+
+![Login Page](assets/login.png)
+
+- Secure authentication system
+- Role-based access control
+- Session management
 
 ### 2. Admin Panel (admin.php)
 
-- Description: This panel allows administrators to manage employees (create, delete, search) and shifts (create, edit shift composition, change shift status to active or closed, etc.).
+![Admin Panel](assets/admin.png)
 
-- Image: ![Admin Panel](assets/admin.png)
+- Employee Management: Create, delete, and search employees
+- Shift Management:
+        - Create new shifts
+        - Edit shift details (staff assignment, time adjustments)
+        - Update shift status (active/closed)
+        - Track shift performance
 
 ### 3. Waiter Panel (waiter.php)
 
-- Description: Waiters can create new orders and update the status of existing orders.
+![Waiter Panel](assets/waiter.png)
 
-- Image: ![Waiter Panel](assets/waiter.png)
+- Create new orders with multiple items
+- Modify existing orders
+- Update order status (pending, in-progress, completed)
+- Table management system
 
 ### 4. Chief Panel (chief.php)
 
-- Description: Chiefs (cooks) can update the status of orders (e.g., mark as in progress, ready, etc.).
+![Chief Panel](assets/chief.png)
 
-- Image: ![Chief Panel](assets/chief.png)
+- View pending orders
+- Update cooking status (preparing, ready to serve)
+- Priority order management
+- Kitchen display system
 
 ## Tech Stack
 
@@ -44,11 +68,20 @@ The following technologies were used to build this project:
 
 - <img src="./assets/icons/PHP.png" height="24"> PHP
 
-## Installation
+## Installation Guide
 
-To set up the project locally, follow these steps:
+Follow these steps to set up Tortotoro on your local server:
 
-1. **Clone the repository** to your server (we used OpenServer for development):
+### Prerequisites
+
+- Web server (Apache recommended)
+- PHP 7.4 or higher
+- MySQL 5.7 or higher
+- [OpenServer](https://ospanel.io) (recommended for Windows) or similar stack
+
+### Step-by-Step Installation
+
+1. **Clone the repository** 
 
 ```
 
@@ -56,17 +89,19 @@ git clone https://github.com/GapeevE/Tortotoro.git
 
 ```
 
-2. **Create a MySQL database** using phpMyAdmin or any other database management tool.
+2. **Set up the database** 
+    - Create a new MySQL database named `tortotoro`
+    - Import the database structure from `tortotoro.sql`:
 
-3. **Import the database schema** from the provided `tortotoro.sql` file into your database. You can do this via phpMyAdmin by:
+    ```
 
-- Selecting your database.
+        mysql -u [username] -p tortotoro < tortotoro.sql
 
-- Clicking on the "Import" tab.
+    ```
 
-- Choosing the `tortotoro.sql` file and clicking "Go".
+3. **Configure database connection:** 
 
-4. **Configure the database connection** by editing the `db_connect.php` file with your database credentials:
+Edit `db_connect.php` with your credentials:
 
 ```php
 
@@ -82,24 +117,27 @@ $password = ''; // your database password
 
 
 ```
+4. **Start your web server** (OpenServer, XAMPP, WAMP, etc.)
 
-5. **Start your web server** (e.g., Apache in OpenServer) and navigate to the project directory.
+5. **Access the application:** 
 
-6. **Access the application** via a web browser at `http://localhost/tortotoro/`.
+Open your browser and navigate to:
+
+```
+
+http://localhost/tortotoro/
+
+```
 
 ### Default User Credentials
 
-For testing purposes, you can use the following pre-defined users:
+Use these credentials for initial access:
 
-| Role    | Login        | Password     |
-
-|---------|--------------|--------------|
-
-| Admin   | cheban       | Admin123!    |
-
-| Waiter  | shakilonil   | Offick123!   |
-
-| Chief   | olga         | Povar123!    |
+|Role|Username|Password|
+|---|---|---|
+|Admin|cheban|Admin123!|
+|Waiter|shakilonil|Offick123!|
+|Chief|olga|Povar123!|
 
 ## License
 
